@@ -5,84 +5,103 @@
 
     <script>
 
-    class Snake {
-        constructor() {
-            this.pos = [0,0];
-            this.length = 0;
-            this.positions = [];
-        }
+        scale = 10
 
-        update(key) {
-            this.move(key)
-        }
-
-        show() {
-            
-        }
-
-        move(key) {
-            if (key === 'up') {
-                this.pos[1] -= 1;
-            } else if (key === 'down') {
-                this.pos[1] += 1;
-            } else if (key === 'left') {
-                this.pos[0] -= 1;
-            } else {
-                this.pos[0] += 1;
+        class Snake {
+            constructor() {
+                this.pos = [0, 0];
+                this.length = 1;
+                this.positions = [];
             }
 
-        }
-    }
+            update(key, scale) {
+                this.move(key)
+                this.show(scale)
+            }
 
-    last_key = "up"
-    time_between_frames = 1
-    time_since_last = 0
-    function loop() {
+            show(scale) {
 
-        for (let d in ["up", "down", "left", "right"]) {
-            if (key.isPressed(d)) {
-                last_key = "d";
+                for (let part = 0; part < this.length; part++) {
+                    let pos = this.positions[this.positions.length - part - 1]
+                    let c = (part + 1) / this.length * 150
+                    ctx.fillStyle = `rgb(${c}, 255, ${c})`;
+                    ctx.fillRect(scale * pos[0], scale * pos[1], scale, scale)
+                }
+
+            }
+
+            move(key) {
+                if (key === 'up') {
+                    this.pos[1] -= 1;
+                } else if (key === 'down') {
+                    this.pos[1] += 1;
+                } else if (key === 'left') {
+                    this.pos[0] -= 1;
+                } else {
+                    this.pos[0] += 1;
+                }
+                this.positions.push(this.pos)
             }
         }
 
-        t = get_frame_change()
-        if (time_since_last >= time_between_frames) {
-            runGame();
-            time_since_last = 0;
+        last_key = "up"
+        time_between_frames = 1
+        time_since_last = 0
+        function loop() {
+
+            for (let d in ["up", "down", "left", "right"]) {
+                if (key.isPressed(d)) {
+                    last_key = "d";
+                }
+            }
+
+            t = get_frame_change();
+            time_since_last += t;
+            if (time_since_last >= time_between_frames) {
+                runGame();
+                time_since_last = 0;
+            }
+            requestAnimationFrame(loop);
         }
-        requestAnimationFrame(loop);
-    }
 
-    let last_time = 0    
-    function get_frame_change() {
-        t = performance.now() - last_time;
-        last_time = performance.now();
-        return t
-    }
+        let last_time = 0
+        function get_frame_change() {
+            t = performance.now() - last_time;
+            last_time = performance.now();
+            return t
+        }
 
-    function init() {
-        let canvas = document.getElementById('tutorial');
-        ctx = canvas.getContext('2d');
-        ctx.canvas.width = window.innerWidth;
-        ctx.canvas.height = window.innerHeight;
+        function runGame(key) {
+            ctx.fillStyle = 'rgb(70, 70, 70)'
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
-        loop();
- 
-    }
+            snake.update(key, scale)
+        }
 
-    function draw() {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.beginPath()
-        width = get_dt() * 10000;
-        ctx.rect(20, 100, width, 20);
-        ctx.closePath()
-        ctx.strokeStyle='#0000ff'
-        ctx.lineWidth = 10
-        ctx.stroke();
-        ctx.fillStyle='#00ff00'
-        ctx.fill()
-        
-    }
+        function init() {
+            let canvas = document.getElementById('tutorial');
+            ctx = canvas.getContext('2d');
+            ctx.canvas.width = window.innerWidth;
+            ctx.canvas.height = window.innerHeight;
+
+            snake = new Snake()
+            loop();
+
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.beginPath()
+            width = get_dt() * 10000;
+            ctx.rect(20, 100, width, 20);
+            ctx.closePath()
+            ctx.strokeStyle = '#0000ff'
+            ctx.lineWidth = 10
+            ctx.stroke();
+            ctx.fillStyle = '#00ff00'
+            ctx.fill()
+
+        }
     </script>
 
 </head>
